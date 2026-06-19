@@ -34,3 +34,8 @@ select = ["E", "F", "I", "N", "W"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+addopts = "-v --tb=short"
+markers = [
+    "unit: Unit tests (no DB required)",
+    "integration: Integration tests (may need DB mock)",
+]
