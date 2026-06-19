@@ -1,7 +1,6 @@
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -27,6 +26,7 @@ async def register(body: UserRegister, db: AsyncSession = Depends(get_db)):
         id=uuid4(),
         name=body.name,
         email=body.email,
+        password_hash=hash_password(body.password),
         preferred_language=body.preferred_language,
     )
     created = await repo.create(student)
@@ -49,6 +49,9 @@ async def login(body: UserLogin, db: AsyncSession = Depends(get_db)):
     repo = SQLStudentRepository(db)
     student = await repo.get_by_email(body.email)
     if not student:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    if not student.password_hash or not verify_password(body.password, student.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     token = create_access_token({

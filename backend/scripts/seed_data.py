@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 from app.core.config import get_settings
 from app.core.database import Base
+from app.core.security import hash_password
 from app.infrastructure.db.models.content import (
     ContentSourceModel, LessonModel, ConceptModel, SkillModel, ContentChunkModel,
 )
@@ -99,6 +100,7 @@ async def seed():
             id="00000000-0000-0000-0000-000000000001",
             name="طالب تجريبي",
             email="demo@edumind.com",
+            password_hash=hash_password("demo123"),
             preferred_language="ar",
             level="beginner",
         )

@@ -29,3 +29,6 @@ class MisconceptionInstanceRepository(ABC):
 
     @abstractmethod
     async def list_by_student(self, student_id: UUID) -> list[MisconceptionInstance]: ...
+
+    @abstractmethod
+    async def list_by_misconception(self, misconception_id: UUID) -> list[MisconceptionInstance]: ...

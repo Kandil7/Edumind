@@ -13,7 +13,7 @@ def analyze_skill_gaps_task(self, skill_id: str):
     from app.core.config import get_settings
 
     settings = get_settings()
-    engine = create_engine(settings.SYNC_DATABASE_URL)
+    engine = create_engine(settings.effective_sync_database_url)
 
     with Session(engine) as db:
         from app.application.gap_detector.gap_service import GapDetectorService
@@ -43,7 +43,7 @@ def periodic_gap_scan_task(self):
     from app.core.config import get_settings
 
     settings = get_settings()
-    engine = create_engine(settings.SYNC_DATABASE_URL)
+    engine = create_engine(settings.effective_sync_database_url)
 
     with Session(engine) as db:
         from app.infrastructure.db.models.content import SkillModel

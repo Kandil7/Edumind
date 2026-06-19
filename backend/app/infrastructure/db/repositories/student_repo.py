@@ -18,6 +18,7 @@ def _model_to_student(m: StudentModel) -> Student:
         id=m.id,
         name=m.name,
         email=m.email,
+        password_hash=m.password_hash,
         preferred_language=m.preferred_language,
         level=m.level,
         created_at=m.created_at,
@@ -44,6 +45,7 @@ class SQLStudentRepository(StudentRepository):
             id=_to_str(student.id),
             name=student.name,
             email=student.email,
+            password_hash=student.password_hash,
             preferred_language=student.preferred_language,
             level=student.level,
         )

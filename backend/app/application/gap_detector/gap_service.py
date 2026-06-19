@@ -105,11 +105,15 @@ class GapDetectorService:
         misconceptions = await self.misconception_repo.list_by_skill(skill_id)
         results = []
         for m in misconceptions:
-            instances = await self.instance_repo.list_by_student(UUID(int=0))
-            # Count unique students affected
+            # Count unique students affected by this misconception
+            instances = await self.instance_repo.list_by_misconception(m.id)
+            unique_students = len({inst.student_id for inst in instances})
+            total_occurrences = sum(inst.num_occurrences for inst in instances)
             results.append({
                 "misconception_id": str(m.id),
                 "description": m.description,
                 "skill_id": str(m.skill_id),
+                "students_affected": unique_students,
+                "total_occurrences": total_occurrences,
             })
         return results

@@ -8,6 +8,7 @@ class Student:
         id: UUID,
         name: str,
         email: str,
+        password_hash: str | None = None,
         preferred_language: str = "ar",
         level: str = "beginner",
         created_at: datetime | None = None,
@@ -15,6 +16,7 @@ class Student:
         self.id = id
         self.name = name
         self.email = email
+        self.password_hash = password_hash
         self.preferred_language = preferred_language
         self.level = level
         self.created_at = created_at or datetime.now()

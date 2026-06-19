@@ -15,7 +15,12 @@ const resources = {
       email: 'Email',
       password: 'Password',
       name: 'Name',
+      role: 'Role',
+      student: 'Student',
+      teacher: 'Teacher',
       logout: 'Logout',
+      already_have_account: 'Already have an account?',
+      no_account: "Don't have an account?",
 
       // Navigation
       lessons: 'Lessons',
@@ -84,7 +89,12 @@ const resources = {
       email: 'البريد الإلكتروني',
       password: 'كلمة المرور',
       name: 'الاسم',
+      role: 'الدور',
+      student: 'طالب',
+      teacher: 'معلم',
       logout: 'تسجيل الخروج',
+      already_have_account: 'لديك حساب بالفعل؟',
+      no_account: 'ليس لديك حساب؟',
 
       // Navigation
       lessons: 'الدروس',

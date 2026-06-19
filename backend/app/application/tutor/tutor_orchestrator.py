@@ -168,13 +168,10 @@ class TutorOrchestrator:
         if not skill:
             return {"action": "FINISHED", "reason": "skill_not_found"}
 
-        # Find chunks for this concept
-        chunks = await self.chunk_repo.list_by_lesson(UUID(int(0)))  # Need lesson_id
-        # Fallback: search by concept
         from app.application.assessment.question_generator import QuestionGeneratorService
         generator = QuestionGeneratorService(self.db)
 
-        # Get the concept's lesson
+        # Get the concept to find its lesson
         concept = await self.concept_repo.get_by_id(skill.concept_id)
         if not concept:
             return {"action": "FINISHED", "reason": "concept_not_found"}

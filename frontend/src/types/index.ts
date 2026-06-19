@@ -1,3 +1,16 @@
+export interface User {
+  user_id: string;
+  email: string;
+  role: 'student' | 'teacher' | 'admin';
+}
+
+export interface AuthState {
+  user: User | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+}
+
 export interface Lesson {
   id: string;
   title: string;

@@ -42,3 +42,13 @@ frontend/build/
 .coverage
 htmlcov/
 .pytest_cache/
+
+# Database
+*.db
+
+# Debug scripts (keep in scripts/ folder)
+backend/fix_*.py
+backend/check_*.py
+backend/create_db.py
+backend/test_flow.py
+backend/startup_err.log

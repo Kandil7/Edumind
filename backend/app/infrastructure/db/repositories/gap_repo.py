@@ -1,17 +1,15 @@
 from uuid import UUID
 
-
-def _to_str(val) -> str:
-    return str(val) if isinstance(val, UUID) else val
-
-from uuid import UUID
-
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.entities.misconception import Misconception, MisconceptionInstance
 from app.domain.interfaces.gap_repository import MisconceptionRepository, MisconceptionInstanceRepository
 from app.infrastructure.db.models.misconception import MisconceptionModel, MisconceptionInstanceModel
+
+
+def _to_str(val) -> str:
+    return str(val) if isinstance(val, UUID) else val
 
 
 def _model_to_misconception(m: MisconceptionModel) -> Misconception:
@@ -121,7 +119,16 @@ class SQLMisconceptionInstanceRepository(MisconceptionInstanceRepository):
     async def list_by_student(self, student_id: UUID) -> list[MisconceptionInstance]:
         result = await self.session.execute(
             select(MisconceptionInstanceModel)
-            .where(MisconceptionInstanceModel.student_id == student_id)
+            .where(MisconceptionInstanceModel.student_id == _to_str(student_id))
+            .order_by(MisconceptionInstanceModel.num_occurrences.desc())
+        )
+        return [_model_to_instance(m) for m in result.scalars().all()]
+
+    async def list_by_misconception(self, misconception_id: UUID) -> list[MisconceptionInstance]:
+        """Get all instances of a specific misconception across all students."""
+        result = await self.session.execute(
+            select(MisconceptionInstanceModel)
+            .where(MisconceptionInstanceModel.misconception_id == _to_str(misconception_id))
             .order_by(MisconceptionInstanceModel.num_occurrences.desc())
         )
         return [_model_to_instance(m) for m in result.scalars().all()]

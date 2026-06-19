@@ -19,6 +19,7 @@ class StudentModel(Base):
     id = Column(String(36), primary_key=True, default=_uuid_col)
     name = Column(String(300), nullable=False)
     email = Column(String(300), unique=True, nullable=False)
+    password_hash = Column(String(200), nullable=True)
     preferred_language = Column(String(10), default="ar")
     level = Column(String(20), default="beginner")
     created_at = Column(DateTime, default=datetime.utcnow)

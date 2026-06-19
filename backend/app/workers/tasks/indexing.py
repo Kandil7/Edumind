@@ -16,7 +16,7 @@ def index_content_task(self, source_id: str, lesson_id: str, concept_ids_map: st
     from app.infrastructure.db.models.content import ContentSourceModel, ContentChunkModel
 
     settings = get_settings()
-    engine = create_engine(settings.SYNC_DATABASE_URL)
+    engine = create_engine(settings.effective_sync_database_url)
 
     with Session(engine) as db:
         source = db.query(ContentSourceModel).filter(ContentSourceModel.id == UUID(source_id)).first()
