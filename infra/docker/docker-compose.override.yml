@@ -1,0 +1,15 @@
+# Development overrides - uses host directories for live reload
+services:
+  backend:
+    volumes:
+      - ../../backend:/app
+    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+    environment:
+      - DEBUG=true
+
+  celery-worker:
+    volumes:
+      - ../../backend:/app
+    command: celery -A app.workers.celery_app worker --loglevel=debug --concurrency=1
+    environment:
+      - DEBUG=true

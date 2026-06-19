@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { tutorAPI } from '../api/client';
 import { QuestionCard } from '../components/QuestionCard';
 import { SourceCitation } from '../components/SourceCitation';
+import { LoadingSpinner, ErrorMessage } from '../components/UIComponents';
 import type { Lesson, TutorStepResponse } from '../types';
 
 interface Props {
@@ -15,12 +16,15 @@ export const StudentSession: React.FC<Props> = ({ lesson, studentId, onFinish })
   const { t } = useTranslation();
   const [step, setStep] = useState<TutorStepResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [lastQuestionId, setLastQuestionId] = useState<string | undefined>();
   const [lastResponse, setLastResponse] = useState<string | undefined>();
   const [stepCount, setStepCount] = useState(0);
+  const [sessionHistory, setSessionHistory] = useState<{ question: string; correct: boolean }[]>([]);
 
-  const loadStep = async () => {
+  const loadStep = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const res = await tutorAPI.sessionStep(studentId, lesson.id, lastQuestionId, lastResponse);
       setStep(res.data);
@@ -29,15 +33,14 @@ export const StudentSession: React.FC<Props> = ({ lesson, studentId, onFinish })
       if (res.data.question) {
         setLastQuestionId(res.data.question.id);
       }
-    } catch (err) {
-      console.error('Session step error:', err);
+    } catch (err: any) {
+      setError(err.message || 'Failed to load step');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  };
+  }, [studentId, lesson.id, lastQuestionId, lastResponse]);
 
-  useEffect(() => {
-    loadStep();
-  }, []);
+  useEffect(() => { loadStep(); }, []);
 
   const handleSubmitAnswer = async (response: string) => {
     setLastResponse(response);
@@ -45,18 +48,24 @@ export const StudentSession: React.FC<Props> = ({ lesson, studentId, onFinish })
   };
 
   if (loading && !step) {
-    return (
-      <div style={{ padding: '3rem', textAlign: 'center' }}>
-        <p>{t('loading')}...</p>
-      </div>
-    );
+    return <LoadingSpinner message="Preparing your learning session..." />;
+  }
+
+  if (error) {
+    return <ErrorMessage message={error} onRetry={loadStep} />;
   }
 
   if (step?.action === 'FINISHED' || stepCount > 15) {
     return (
-      <div style={{ padding: '3rem', textAlign: 'center' }}>
-        <h2>{t('session_finished')}</h2>
-        <p>You completed {stepCount - 1} questions.</p>
+      <div style={{ padding: '3rem', textAlign: 'center', maxWidth: '500px', margin: '0 auto' }}>
+        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎉</div>
+        <h2 style={{ marginBottom: '1rem' }}>{t('session_finished')}</h2>
+        <p style={{ color: '#666', marginBottom: '0.5rem' }}>
+          You completed {stepCount - 1} steps in this session.
+        </p>
+        <p style={{ color: '#666', marginBottom: '2rem' }}>
+          Keep practicing to improve your mastery!
+        </p>
         <button
           onClick={onFinish}
           style={{
@@ -67,7 +76,6 @@ export const StudentSession: React.FC<Props> = ({ lesson, studentId, onFinish })
             borderRadius: '8px',
             cursor: 'pointer',
             fontSize: '1rem',
-            marginTop: '1rem',
           }}
         >
           {t('dashboard')}
@@ -78,8 +86,21 @@ export const StudentSession: React.FC<Props> = ({ lesson, studentId, onFinish })
 
   return (
     <div style={{ padding: '1rem' }}>
-      <div style={{ marginBottom: '1rem', fontSize: '0.85rem', color: '#666' }}>
-        {lesson.title} | Step {stepCount}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '1.5rem',
+        padding: '0.8rem 1.2rem',
+        background: '#f5f5f5',
+        borderRadius: '8px',
+      }}>
+        <span style={{ fontSize: '0.9rem', color: '#333' }}>
+          📖 {lesson.title}
+        </span>
+        <span style={{ fontSize: '0.85rem', color: '#666' }}>
+          Step {stepCount} / 15
+        </span>
       </div>
 
       {step?.action === 'EXPLAIN' && step.explanation && (
@@ -89,9 +110,12 @@ export const StudentSession: React.FC<Props> = ({ lesson, studentId, onFinish })
           margin: '0 auto',
           background: '#e8f5e9',
           borderRadius: '12px',
+          border: '1px solid #c8e6c9',
         }}>
-          <h2 style={{ marginBottom: '1rem' }}>{t('explanations')}</h2>
-          <p style={{ lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>{step.explanation}</p>
+          <h2 style={{ marginBottom: '1rem', color: '#2e7d32' }}>💡 {t('explanations')}</h2>
+          <p style={{ lineHeight: 1.8, whiteSpace: 'pre-wrap', fontSize: '1rem' }}>
+            {step.explanation}
+          </p>
           {step.sources && <SourceCitation sources={step.sources} />}
           <button
             onClick={() => loadStep()}
@@ -106,7 +130,7 @@ export const StudentSession: React.FC<Props> = ({ lesson, studentId, onFinish })
               fontSize: '1rem',
             }}
           >
-            {t('next')}
+            {t('next')} →
           </button>
         </div>
       )}
@@ -117,6 +141,33 @@ export const StudentSession: React.FC<Props> = ({ lesson, studentId, onFinish })
           sources={step.sources || undefined}
           onSubmit={handleSubmitAnswer}
         />
+      )}
+
+      {sessionHistory.length > 0 && (
+        <div style={{ marginTop: '2rem', maxWidth: '700px', margin: '2rem auto 0' }}>
+          <h4 style={{ marginBottom: '0.5rem', color: '#666' }}>Session Progress</h4>
+          <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
+            {sessionHistory.map((h, i) => (
+              <div
+                key={i}
+                style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '4px',
+                  background: h.correct ? '#4caf50' : '#f44336',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '0.7rem',
+                  color: '#fff',
+                }}
+                title={h.question}
+              >
+                {i + 1}
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );
