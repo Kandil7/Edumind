@@ -71,6 +71,26 @@ export const tutorAPI = {
 export const studentsAPI = {
   profile: (id: string) => api.get(`/students/${id}/profile`),
   summary: (id: string) => api.get(`/students/${id}/summary`),
+  gaps: (id: string) => api.get(`/students/${id}/gaps`),
+};
+
+export const teachersAPI = {
+  overview: (teacherId: string) => api.get(`/teachers/${teacherId}/courses/overview`),
+  lessonAnalytics: (lessonId: string) => api.get(`/teachers/lessons/${lessonId}/analytics`),
+  skillMisconceptions: (skillId: string) => api.get(`/teachers/skills/${skillId}/misconceptions`),
+};
+
+export const speechAPI = {
+  tts: (text: string, language: string = 'ar') =>
+    api.post('/speech/tts', { text, language }, { responseType: 'blob' }),
+  asr: (audio: Blob, language: string = 'ar') => {
+    const formData = new FormData();
+    formData.append('audio', audio, 'recording.wav');
+    formData.append('language', language);
+    return api.post('/speech/asr', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
 };
 
 export const contentAPI = {

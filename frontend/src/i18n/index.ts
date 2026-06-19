@@ -4,60 +4,140 @@ import { initReactI18next } from 'react-i18next';
 const resources = {
   en: {
     translation: {
+      // App
       app_name: 'EduMind',
       welcome: 'Welcome to EduMind',
+      loading: 'Loading',
+
+      // Auth
       login: 'Login',
       register: 'Register',
       email: 'Email',
       password: 'Password',
       name: 'Name',
+      logout: 'Logout',
+
+      // Navigation
       lessons: 'Lessons',
       start_learning: 'Start Learning',
       dashboard: 'Dashboard',
+      teacher_dashboard: 'Teacher Dashboard',
+      back: 'Back',
+
+      // Student
       mastery: 'Mastery',
       gaps: 'Knowledge Gaps',
-      explanations: 'Explanations',
+      explanations: 'Explanation',
       questions: 'Questions',
-      submit: 'Submit',
-      next: 'Next',
+      submit: 'Submit Answer',
+      next: 'Continue',
       previous: 'Previous',
       correct: 'Correct!',
-      incorrect: 'Incorrect',
-      session_finished: 'Session Complete',
-      view_sources: 'View Sources',
-      teacher_dashboard: 'Teacher Dashboard',
+      incorrect: 'Incorrect — try again',
+      session_finished: 'Session Complete!',
+      session_finished_desc: 'You did great! Check your dashboard for progress.',
+      view_sources: 'Sources',
+      type_answer: 'Type your answer here...',
+      session_progress: 'Session Progress',
+
+      // Stats
+      total_attempts: 'Total Attempts',
+      correct: 'Correct',
+      accuracy: 'Accuracy',
+      mastered_skills: 'Mastered',
+      needs_practice: 'Needs Practice',
+
+      // Teacher
       upload_content: 'Upload Content',
-      analytics: 'Analytics',
+      create_lesson: 'Create Lesson',
+      existing_lessons: 'Existing Lessons',
+      lesson_title: 'Lesson title',
+      subject: 'Subject',
+      grade_level: 'Grade level',
+      description: 'Description',
+      upload: 'Upload',
+      uploading: 'Uploading...',
+      refresh: 'Refresh',
+      create: 'Create',
+      overview: 'Overview',
+      content: 'Content',
+      students: 'Students',
+      questions_count: 'Questions',
+      avg_mastery: 'Avg Mastery',
+
+      // Language
       language: 'Language',
+      arabic: 'العربية',
+      english: 'English',
     },
   },
   ar: {
     translation: {
+      // App
       app_name: 'إدومايند',
       welcome: 'مرحباً بك في إدومايند',
+      loading: 'جاري التحميل',
+
+      // Auth
       login: 'تسجيل الدخول',
       register: 'إنشاء حساب',
       email: 'البريد الإلكتروني',
       password: 'كلمة المرور',
       name: 'الاسم',
+      logout: 'تسجيل الخروج',
+
+      // Navigation
       lessons: 'الدروس',
       start_learning: 'ابدأ التعلم',
       dashboard: 'لوحة التحكم',
+      teacher_dashboard: 'لوحة تحكم المعلم',
+      back: 'رجوع',
+
+      // Student
       mastery: 'الإتقان',
       gaps: 'فجوات المعرفة',
-      explanations: 'الشروحات',
+      explanations: 'شرح',
       questions: 'الأسئلة',
-      submit: 'إرسال',
-      next: 'التالي',
+      submit: 'إرسال الإجابة',
+      next: 'متابعة',
       previous: 'السابق',
       correct: 'صحيح!',
-      incorrect: 'خطأ',
-      session_finished: 'اكتملت الجلسة',
-      view_sources: 'عرض المصادر',
-      teacher_dashboard: 'لوحة تحكم المعلم',
+      incorrect: 'خطأ — حاول مرة أخرى',
+      session_finished: 'اكتملت الجلسة!',
+      session_finished_desc: 'أحسنت! راجع لوحة التحكم لمتابعة تقدمك.',
+      view_sources: 'المصادر',
+      type_answer: 'اكتب إجابتك هنا...',
+      session_progress: 'تقدم الجلسة',
+
+      // Stats
+      total_attempts: 'إجمالي المحاولات',
+      correct: 'صحيحة',
+      accuracy: 'الدقة',
+      mastered_skills: 'مُتقَنة',
+      needs_practice: 'تحتاج تدريب',
+
+      // Teacher
       upload_content: 'رفع المحتوى',
-      analytics: 'التحليلات',
+      create_lesson: 'إنشاء درس',
+      existing_lessons: 'الدروس الحالية',
+      lesson_title: 'عنوان الدرس',
+      subject: 'المادة',
+      grade_level: 'المستوى',
+      description: 'الوصف',
+      upload: 'رفع',
+      uploading: 'جاري الرفع...',
+      refresh: 'تحديث',
+      create: 'إنشاء',
+      overview: 'نظرة عامة',
+      content: 'المحتوى',
+      students: 'الطلاب',
+      questions_count: 'الأسئلة',
+      avg_mastery: 'متوسط الإتقان',
+
+      // Language
       language: 'اللغة',
+      arabic: 'العربية',
+      english: 'English',
     },
   },
 };

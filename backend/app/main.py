@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from app.core.config import get_settings
 from app.core.logging import setup_logging, get_logger
 from app.core.middleware import RequestIDMiddleware, ExceptionHandlerMiddleware
-from app.api.v1 import content, students, questions, tracing, tutor, speech, auth
+from app.api.v1 import content, students, questions, tracing, tutor, speech, auth, teachers
 
 settings = get_settings()
 logger = get_logger("app")
@@ -43,6 +43,7 @@ def create_app() -> FastAPI:
     application.include_router(tracing.router, prefix=settings.API_V1_PREFIX)
     application.include_router(tutor.router, prefix=settings.API_V1_PREFIX)
     application.include_router(speech.router, prefix=settings.API_V1_PREFIX)
+    application.include_router(teachers.router, prefix=settings.API_V1_PREFIX)
 
     @application.get("/health")
     async def health_check():

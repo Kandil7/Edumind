@@ -25,26 +25,35 @@ class GapDetectorService:
         if not wrong_attempts:
             return []
 
-        # Group by response pattern (simplified clustering)
+        # Group by normalized response pattern (simplified clustering)
         patterns: dict[str, list] = {}
         for attempt in wrong_attempts:
-            key = attempt.response_text[:50].lower().strip()
-            if key not in patterns:
-                patterns[key] = []
-            patterns[key].append(attempt)
+            normalized = (attempt.response_text or "").lower().strip()[:80]
+            if not normalized:
+                continue
+            if normalized not in patterns:
+                patterns[normalized] = []
+            patterns[normalized].append(attempt)
 
-        # Create/update misconceptions for each pattern
+        # Get existing misconceptions for this skill to avoid duplicates
+        existing_misconceptions = await self.misconception_repo.list_by_skill(skill_id)
+        existing_descriptions = {m.description for m in existing_misconceptions}
+
         misconceptions = []
         for pattern_key, attempts in patterns.items():
             if len(attempts) < 2:
-                continue  # Need at least 2 occurrences
+                continue
 
-            # Check if similar misconception exists
-            description = f"خطأ شائع: {pattern_key}"
-            existing = await self.misconception_repo.find_similar(
-                embedding=None,  # Would use real embedding in production
-                skill_id=skill_id,
-            )
+            # Build a meaningful description from the pattern
+            sample_responses = list({a.response_text for a in attempts})[:3]
+            description = f"خطأ شائع: الطلاب يجيبون '{pattern_key}' ({len(attempts)} مرات)"
+
+            # Check if we already have a misconception with this pattern
+            existing = None
+            for m in existing_misconceptions:
+                if pattern_key in m.description:
+                    existing = m
+                    break
 
             if existing:
                 misconception = existing
@@ -71,6 +80,7 @@ class GapDetectorService:
                 "description": description,
                 "occurrences": len(attempts),
                 "students_affected": len(students_seen),
+                "sample_responses": sample_responses,
             })
 
         return misconceptions
@@ -88,4 +98,18 @@ class GapDetectorService:
                     "first_seen": inst.first_seen_at.isoformat(),
                     "last_seen": inst.last_seen_at.isoformat(),
                 })
+        return results
+
+    async def get_skill_misconceptions(self, skill_id: UUID) -> list[dict]:
+        """Get top misconceptions for a skill with student counts."""
+        misconceptions = await self.misconception_repo.list_by_skill(skill_id)
+        results = []
+        for m in misconceptions:
+            instances = await self.instance_repo.list_by_student(UUID(int=0))
+            # Count unique students affected
+            results.append({
+                "misconception_id": str(m.id),
+                "description": m.description,
+                "skill_id": str(m.skill_id),
+            })
         return results
