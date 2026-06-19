@@ -15,6 +15,10 @@ from app.infrastructure.db.models.content import (
 )
 
 
+def _to_str(val) -> str:
+    return str(val) if isinstance(val, UUID) else val
+
+
 def _model_to_source(m: ContentSourceModel) -> ContentSource:
     return ContentSource(
         id=m.id,
@@ -100,7 +104,7 @@ class SQLContentSourceRepository(ContentSourceRepository):
 
     async def get_by_id(self, id: UUID) -> ContentSource | None:
         result = await self.session.execute(
-            select(ContentSourceModel).where(ContentSourceModel.id == id)
+            select(ContentSourceModel).where(ContentSourceModel.id == _to_str(id))
         )
         model = result.scalar_one_or_none()
         return _model_to_source(model) if model else None
@@ -109,7 +113,7 @@ class SQLContentSourceRepository(ContentSourceRepository):
         result = await self.session.execute(
             select(ContentSourceModel)
             .join(ContentChunkModel, ContentChunkModel.source_id == ContentSourceModel.id)
-            .where(ContentChunkModel.lesson_id == lesson_id)
+            .where(ContentChunkModel.lesson_id == _to_str(lesson_id))
             .distinct()
         )
         return [_model_to_source(m) for m in result.scalars().all()]
@@ -135,7 +139,7 @@ class SQLLessonRepository(LessonRepository):
 
     async def get_by_id(self, id: UUID) -> Lesson | None:
         result = await self.session.execute(
-            select(LessonModel).where(LessonModel.id == id)
+            select(LessonModel).where(LessonModel.id == _to_str(id))
         )
         model = result.scalar_one_or_none()
         return _model_to_lesson(model) if model else None
@@ -165,14 +169,14 @@ class SQLConceptRepository(ConceptRepository):
 
     async def get_by_id(self, id: UUID) -> Concept | None:
         result = await self.session.execute(
-            select(ConceptModel).where(ConceptModel.id == id)
+            select(ConceptModel).where(ConceptModel.id == _to_str(id))
         )
         model = result.scalar_one_or_none()
         return _model_to_concept(model) if model else None
 
     async def list_by_lesson(self, lesson_id: UUID) -> list[Concept]:
         result = await self.session.execute(
-            select(ConceptModel).where(ConceptModel.lesson_id == lesson_id)
+            select(ConceptModel).where(ConceptModel.lesson_id == _to_str(lesson_id))
         )
         return [_model_to_concept(m) for m in result.scalars().all()]
 
@@ -194,14 +198,14 @@ class SQLSkillRepository(SkillRepository):
 
     async def get_by_id(self, id: UUID) -> Skill | None:
         result = await self.session.execute(
-            select(SkillModel).where(SkillModel.id == id)
+            select(SkillModel).where(SkillModel.id == _to_str(id))
         )
         model = result.scalar_one_or_none()
         return _model_to_skill(model) if model else None
 
     async def list_by_concept(self, concept_id: UUID) -> list[Skill]:
         result = await self.session.execute(
-            select(SkillModel).where(SkillModel.concept_id == concept_id)
+            select(SkillModel).where(SkillModel.concept_id == _to_str(concept_id))
         )
         return [_model_to_skill(m) for m in result.scalars().all()]
 
@@ -265,7 +269,7 @@ class SQLContentChunkRepository(ContentChunkRepository):
             (1 - ContentChunkModel.embedding.cosine_distance(embedding_str)).label("similarity"),
         )
         if lesson_id:
-            query = query.where(ContentChunkModel.lesson_id == lesson_id)
+            query = query.where(ContentChunkModel.lesson_id == _to_str(lesson_id))
         if language:
             query = query.where(ContentChunkModel.language == language)
         query = query.order_by("similarity").limit(k)
@@ -276,12 +280,12 @@ class SQLContentChunkRepository(ContentChunkRepository):
 
     async def list_by_source(self, source_id: UUID) -> list[ContentChunk]:
         result = await self.session.execute(
-            select(ContentChunkModel).where(ContentChunkModel.source_id == source_id)
+            select(ContentChunkModel).where(ContentChunkModel.source_id == _to_str(source_id))
         )
         return [_model_to_chunk(m) for m in result.scalars().all()]
 
     async def list_by_lesson(self, lesson_id: UUID) -> list[ContentChunk]:
         result = await self.session.execute(
-            select(ContentChunkModel).where(ContentChunkModel.lesson_id == lesson_id)
+            select(ContentChunkModel).where(ContentChunkModel.lesson_id == _to_str(lesson_id))
         )
         return [_model_to_chunk(m) for m in result.scalars().all()]

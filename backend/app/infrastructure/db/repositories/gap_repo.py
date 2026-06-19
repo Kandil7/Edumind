@@ -1,5 +1,11 @@
 from uuid import UUID
 
+
+def _to_str(val) -> str:
+    return str(val) if isinstance(val, UUID) else val
+
+from uuid import UUID
+
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -47,14 +53,14 @@ class SQLMisconceptionRepository(MisconceptionRepository):
 
     async def get_by_id(self, id: UUID) -> Misconception | None:
         result = await self.session.execute(
-            select(MisconceptionModel).where(MisconceptionModel.id == id)
+            select(MisconceptionModel).where(MisconceptionModel.id == _to_str(id))
         )
         model = result.scalar_one_or_none()
         return _model_to_misconception(model) if model else None
 
     async def list_by_skill(self, skill_id: UUID) -> list[Misconception]:
         result = await self.session.execute(
-            select(MisconceptionModel).where(MisconceptionModel.skill_id == skill_id)
+            select(MisconceptionModel).where(MisconceptionModel.skill_id == _to_str(skill_id))
         )
         return [_model_to_misconception(m) for m in result.scalars().all()]
 

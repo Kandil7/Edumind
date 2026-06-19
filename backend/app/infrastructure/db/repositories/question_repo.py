@@ -1,5 +1,11 @@
 from uuid import UUID
 
+
+def _to_str(val) -> str:
+    return str(val) if isinstance(val, UUID) else val
+
+from uuid import UUID
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -84,20 +90,20 @@ class SQLQuestionRepository(QuestionRepository):
 
     async def get_by_id(self, id: UUID) -> Question | None:
         result = await self.session.execute(
-            select(QuestionModel).where(QuestionModel.id == id)
+            select(QuestionModel).where(QuestionModel.id == _to_str(id))
         )
         model = result.scalar_one_or_none()
         return _model_to_question(model) if model else None
 
     async def list_by_lesson(self, lesson_id: UUID) -> list[Question]:
         result = await self.session.execute(
-            select(QuestionModel).where(QuestionModel.lesson_id == lesson_id)
+            select(QuestionModel).where(QuestionModel.lesson_id == _to_str(lesson_id))
         )
         return [_model_to_question(m) for m in result.scalars().all()]
 
     async def list_by_skill(self, skill_id: UUID) -> list[Question]:
         result = await self.session.execute(
-            select(QuestionModel).where(QuestionModel.skill_id == skill_id)
+            select(QuestionModel).where(QuestionModel.skill_id == _to_str(skill_id))
         )
         return [_model_to_question(m) for m in result.scalars().all()]
 

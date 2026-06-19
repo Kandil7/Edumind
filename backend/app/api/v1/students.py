@@ -1,14 +1,10 @@
-from uuid import uuid4
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.security import get_current_user
 from app.infrastructure.db.repositories import SQLStudentRepository
-from app.api.schemas.tracing import (
-    StudentProfileResponse, MasteryEntry,
-)
+from app.api.schemas.tracing import StudentProfileResponse, MasteryEntry
 
 router = APIRouter(prefix="/students", tags=["students"])
 
@@ -19,16 +15,17 @@ async def get_student_profile(
     user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    from uuid import UUID
     from sqlalchemy import select
-    from app.infrastructure.db.models.student import StudentSkillStateModel
+    from app.infrastructure.db.models.student import StudentModel, StudentSkillStateModel
     from app.infrastructure.db.models.content import SkillModel, ConceptModel
 
-    student_repo = SQLStudentRepository(db)
-    student = await student_repo.get_by_id(UUID(student_id))
+    # Query student by string ID
+    result = await db.execute(select(StudentModel).where(StudentModel.id == student_id))
+    student = result.scalar_one_or_none()
     if not student:
         raise HTTPException(status_code=404, detail="Student not found")
 
+    # Query mastery entries
     result = await db.execute(
         select(
             StudentSkillStateModel,
@@ -37,7 +34,7 @@ async def get_student_profile(
         )
         .join(SkillModel, SkillModel.id == StudentSkillStateModel.skill_id)
         .join(ConceptModel, ConceptModel.id == SkillModel.concept_id)
-        .where(StudentSkillStateModel.student_id == UUID(student_id))
+        .where(StudentSkillStateModel.student_id == student_id)
     )
     rows = result.all()
 
@@ -62,24 +59,18 @@ async def get_student_summary(
     user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    from uuid import UUID
     from sqlalchemy import select, func
     from app.infrastructure.db.models.question import AttemptModel
 
-    # Total attempts
     result = await db.execute(
         select(func.count(AttemptModel.id))
-        .where(AttemptModel.student_id == UUID(student_id))
+        .where(AttemptModel.student_id == student_id)
     )
     total_attempts = result.scalar() or 0
 
-    # Correct attempts
     result = await db.execute(
         select(func.count(AttemptModel.id))
-        .where(
-            AttemptModel.student_id == UUID(student_id),
-            AttemptModel.correct == True,
-        )
+        .where(AttemptModel.student_id == student_id, AttemptModel.correct == True)
     )
     correct_attempts = result.scalar() or 0
 
@@ -99,10 +90,8 @@ async def get_student_gaps(
     user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Get identified knowledge gaps/misconceptions for a student."""
-    from uuid import UUID
     from app.application.gap_detector.gap_service import GapDetectorService
 
     gap_service = GapDetectorService(db)
-    gaps = await gap_service.get_student_gaps(UUID(student_id))
+    gaps = await gap_service.get_student_gaps(student_id)
     return {"student_id": student_id, "gaps": gaps}

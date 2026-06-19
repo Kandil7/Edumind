@@ -5,12 +5,24 @@ from app.core.config import get_settings
 
 settings = get_settings()
 
-engine = create_async_engine(
-    settings.DATABASE_URL,
-    echo=settings.DEBUG,
-    pool_size=20,
-    max_overflow=10,
-)
+# Build engine based on backend
+db_url = settings.effective_database_url
+if settings.is_sqlite:
+    # SQLite needs aiosqlite driver
+    if "aiosqlite" not in db_url:
+        db_url = db_url.replace("sqlite://", "sqlite+aiosqlite://")
+    engine = create_async_engine(
+        db_url,
+        echo=settings.DEBUG,
+        connect_args={"check_same_thread": False},
+    )
+else:
+    engine = create_async_engine(
+        db_url,
+        echo=settings.DEBUG,
+        pool_size=20,
+        max_overflow=10,
+    )
 
 async_session_factory = async_sessionmaker(
     engine, class_=AsyncSession, expire_on_commit=False

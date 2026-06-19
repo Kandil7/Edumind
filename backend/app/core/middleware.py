@@ -24,7 +24,7 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
         response.headers["X-Response-Time"] = f"{duration:.3f}s"
 
         logger.info(
-            "%s %s → %s (%.3fs)",
+            "%s %s -> %s (%.3fs)",
             request.method,
             request.url.path,
             response.status_code,
