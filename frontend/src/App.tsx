@@ -3,9 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { LessonList } from './components/LessonList';
 import { StudentSession } from './pages/StudentSession';
 import { StudentDashboard } from './pages/StudentDashboard';
+import { TeacherDashboard } from './pages/TeacherDashboard';
 import type { Lesson } from './types';
 
-type View = 'lessons' | 'session' | 'dashboard';
+type View = 'lessons' | 'session' | 'dashboard' | 'teacher';
 
 const STUDENT_ID = '00000000-0000-0000-0000-000000000001';
 
@@ -60,6 +61,12 @@ function App() {
             {t('dashboard')}
           </button>
           <button
+            onClick={() => setView('teacher')}
+            style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer' }}
+          >
+            {t('teacher_dashboard')}
+          </button>
+          <button
             onClick={toggleLanguage}
             style={{
               padding: '0.4rem 0.8rem',
@@ -85,6 +92,7 @@ function App() {
           />
         )}
         {view === 'dashboard' && <StudentDashboard studentId={STUDENT_ID} />}
+        {view === 'teacher' && <TeacherDashboard onBack={() => setView('lessons')} />}
       </main>
     </div>
   );
