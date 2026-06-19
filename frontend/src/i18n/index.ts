@@ -47,7 +47,7 @@ const resources = {
 
       // Stats
       total_attempts: 'Total Attempts',
-      correct: 'Correct',
+      correct_answers: 'Correct',
       accuracy: 'Accuracy',
       mastered_skills: 'Mastered',
       needs_practice: 'Needs Practice',
@@ -121,7 +121,7 @@ const resources = {
 
       // Stats
       total_attempts: 'إجمالي المحاولات',
-      correct: 'صحيحة',
+      correct_answers: 'صحيحة',
       accuracy: 'الدقة',
       mastered_skills: 'مُتقَنة',
       needs_practice: 'تحتاج تدريب',
