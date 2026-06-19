@@ -1,12 +1,14 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
-const API_BASE = '/api/v1';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api/v1';
 
 const api = axios.create({
   baseURL: API_BASE,
   headers: { 'Content-Type': 'application/json' },
+  timeout: 30000,
 });
 
+// Request interceptor: attach JWT token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -14,6 +16,19 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// Response interceptor: handle errors globally
+api.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError<{ detail?: string }>) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/';
+    }
+    const message = error.response?.data?.detail || error.message || 'Network error';
+    return Promise.reject(new Error(message));
+  }
+);
 
 export const authAPI = {
   login: (email: string, password: string) =>
@@ -26,7 +41,8 @@ export const authAPI = {
 export const lessonsAPI = {
   list: () => api.get('/content/lessons'),
   get: (id: string) => api.get(`/content/lessons/${id}`),
-  create: (data: any) => api.post('/content/lessons', data),
+  create: (data: { title: string; subject: string; grade_level: string; language: string; description: string }) =>
+    api.post('/content/lessons', data),
   concepts: (lessonId: string) => api.get(`/content/lessons/${lessonId}/concepts`),
 };
 
@@ -64,6 +80,7 @@ export const contentAPI = {
     formData.append('language', language);
     return api.post('/content/sources/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 120000,
     });
   },
   index: (sourceId: string, lessonId?: string) =>
