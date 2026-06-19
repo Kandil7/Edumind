@@ -9,6 +9,7 @@ from app.api.schemas.tracing import (
     TracingUpdateRequest, TracingUpdateResponse,
     TutorStepRequest, TutorStepResponse,
 )
+from app.api.schemas.question import GradeRequest
 
 router = APIRouter(prefix="/tracing", tags=["tracing"])
 

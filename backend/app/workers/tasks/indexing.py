@@ -5,7 +5,7 @@ from app.workers.celery_app import celery_app
 
 
 @celery_app.task(bind=True, name="indexing.index_content")
-def index_content_task(self, source_id: str, lesson_id: str | None = None, concept_ids_map: str | None = None):
+def index_content_task(self, source_id: str, lesson_id: str, concept_ids_map: str | None = None):
     """
     Background task to index content into pgvector.
     Chunks text, computes embeddings, stores with provenance metadata.
@@ -48,16 +48,20 @@ def index_content_task(self, source_id: str, lesson_id: str | None = None, conce
             except json.JSONDecodeError:
                 pass
 
+        concept_values = list(concept_map.values())
         chunks_created = 0
         for i, paragraph in enumerate(paragraphs):
             if len(paragraph) < 10:
                 continue
 
+            # Distribute concepts across chunks if multiple are provided
+            concept_id = concept_values[i % len(concept_values)] if concept_values else None
+
             chunk = ContentChunkModel(
                 id=uuid4(),
                 source_id=UUID(source_id),
-                lesson_id=UUID(lesson_id) if lesson_id else None,
-                concept_id=UUID(list(concept_map.values())[0]) if concept_map else None,
+                lesson_id=UUID(lesson_id),
+                concept_id=UUID(concept_id) if concept_id else None,
                 content=paragraph,
                 language=source.language or "en",
                 source_type=source.type or "text",

@@ -33,24 +33,16 @@ class RAGService:
         if self.embedding_service:
             query_embedding = await self.embedding_service.embed(query)
         else:
-            # Fallback: use a simple hash-based pseudo-embedding for MVP
             query_embedding = self._simple_embed(query)
 
-        chunks, _ = zip(
-            *await self.chunk_repo.search_similar(
-                embedding=query_embedding,
-                lesson_id=lesson_id,
-                language=language,
-                k=k,
-            )
-        ) if await self.chunk_repo.search_similar(
+        results = await self.chunk_repo.search_similar(
             embedding=query_embedding,
             lesson_id=lesson_id,
             language=language,
             k=k,
-        ) else ([], [])
-
-        return list(chunks)
+        )
+        chunks = [chunk for chunk, _ in results]
+        return chunks
 
     async def answer(
         self,

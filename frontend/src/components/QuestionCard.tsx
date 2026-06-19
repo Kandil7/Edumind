@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Question, SourceLocator } from '../types';
 
@@ -120,5 +120,3 @@ export const QuestionCard: React.FC<Props> = ({ question, sources, onSubmit, res
     </div>
   );
 };
-
-import { useState } from 'react';
