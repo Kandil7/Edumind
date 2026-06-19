@@ -69,3 +69,46 @@ export interface Misconception {
   first_seen: string;
   last_seen: string;
 }
+
+export interface LessonOverview {
+  lesson_id: string;
+  title: string;
+  subject: string;
+  grade_level: string;
+  concept_count: number;
+  chunk_count: number;
+  question_count: number;
+  student_count: number;
+  avg_mastery_pct: number;
+}
+
+export interface SkillStats {
+  skill_id: string;
+  skill_name: string;
+  avg_mastery_pct: number;
+  student_count: number;
+  total_attempts: number;
+  accuracy_pct: number;
+}
+
+export interface ConceptStats {
+  concept_id: string;
+  concept_name: string;
+  difficulty_level: number;
+  skills: SkillStats[];
+}
+
+export interface LessonAnalytics {
+  lesson_id: string;
+  title: string;
+  concepts: ConceptStats[];
+  top_misconceptions: Misconception[];
+}
+
+export interface StudentGap {
+  misconception_id: string;
+  description: string;
+  num_occurrences: number;
+  first_seen: string;
+  last_seen: string;
+}

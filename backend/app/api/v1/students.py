@@ -91,3 +91,18 @@ async def get_student_summary(
         "correct_attempts": correct_attempts,
         "accuracy_pct": round(accuracy, 2),
     }
+
+
+@router.get("/{student_id}/gaps")
+async def get_student_gaps(
+    student_id: str,
+    user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get identified knowledge gaps/misconceptions for a student."""
+    from uuid import UUID
+    from app.application.gap_detector.gap_service import GapDetectorService
+
+    gap_service = GapDetectorService(db)
+    gaps = await gap_service.get_student_gaps(UUID(student_id))
+    return {"student_id": student_id, "gaps": gaps}
